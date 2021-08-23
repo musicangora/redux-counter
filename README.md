@@ -1,70 +1,108 @@
-# Getting Started with Create React App
+# Redux を使ったカウンターのチュートリアル
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+`$ npx create-react-app hoge --template redux`でプロジェクトを作成した際に出てくる Redux を使ったカウンターアプリを作成するチュートリアル。
 
-## Available Scripts
+まず、React の hook を使って実装し、それに Redux を導入する。さらに useReducer を用いたものも比較として実装していく。
 
-In the project directory, you can run:
+## 誰のためのチュートリアルか
 
-### `npm start`
+- React と React 関数コンポーネントについて基本的な知識がある
+- Flux や Redux の基本となる考え方がわかる
+- Redux を実際に実装して試してみたい人
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## お気持ち
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+React の勉強をしていて、Redux も勉強してみようと思ったものの、なかなか丁度いい感じの**触って試せる**チュートリアルが見つからなかった。公式にあるものは全部英語でちょっととっつきにくいし、ネット上にあるものは(公式チュートリアルも含めて)現在非推奨の書き方のままだったりする。
 
-### `npm test`
+また、Redux が大規模なプロジェクトを想定しているためか、全部写経して流れを追うにはしんどい量のプロジェクトを題材にしたチュートリアルだったり、チュートリアルですべてのコードに触れていない(その記事だけ読んで同じものが作れるようになっていない)ものだったりが目立っていた。
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+自分の備忘録も兼ねて、ちょっとまとめてみることにした。
 
-### `npm run build`
+ちなみに、Redux のお話は、[Redux 入門【ダイジェスト版】10 分で理解する Redux の基礎](https://qiita.com/kitagawamac/items/49a1f03445b19cf407b7)と公式の[Redux Essentials, Part 1: Redux Overview and Concepts](https://redux.js.org/tutorials/essentials/part-1-overview-concepts)をあわせて見るとわかりやすい気がする。
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+あと、[Software Design(ソフトウェアデザイン)2021年8月号](https://www.amazon.co.jp/dp/B098WVGCZR/)は表紙にもあるように、本当にReactが怖くなくなったのでおすすめである。
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 完成図
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### オリジナルの Redux カウンターアプリ
 
-### `npm run eject`
+<a href="https://gyazo.com/a173aeb511fbf0794c47bbf029b8f43c"><img src="https://i.gyazo.com/a173aeb511fbf0794c47bbf029b8f43c.png" alt="Image from Gyazo" width="640"/></a>
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### React 版カウンターアプリ
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+<a href="https://gyazo.com/28b508c635970998d19dc73ff7f7b325"><img src="https://i.gyazo.com/28b508c635970998d19dc73ff7f7b325.gif" alt="Image from Gyazo" width="640"/></a>
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Redux 版カウンターアプリ
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+作成中...
 
-## Learn More
+## ステップ 1: プロジェクトの作成
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### CSS について
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+今回は、基となるオリジナルの Redux カウンターアプリの CSS を参考にして、CSS モジュールを使って実装している。変更箇所はカラーテーマくらいである。
 
-### Code Splitting
+```Counter.module.css
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+.row:not(:last-child) {
+  margin-bottom: 16px;
+}
 
-### Analyzing the Bundle Size
+.value {
+  font-size: 78px;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-top: 2px;
+  font-family: 'Courier New', Courier, monospace;
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+.button {
+  appearance: none;
+  border: none;
+  background: none;
+  font-size: 32px;
+  padding-left: 12px;
+  padding-right: 12px;
+  outline: none;
+  border: 2px solid transparent;
+  color: #61dafb;
+  padding-bottom: 4px;
+  cursor: pointer;
+  background-color: rgba(151, 211, 228, 0.15);
+  border-radius: 2px;
+  transition: all 0.15s;
+}
 
-### Making a Progressive Web App
+.button:hover, .button:focus {
+  border: 2px solid rgba(151, 211, 228, 0.5);
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+.button:active {
+  background-color: rgba(151, 211, 228, 0.3);
+}
 
-### Advanced Configuration
+.textbox {
+  font-size: 32px;
+  padding: 2px;
+  width: 64px;
+  text-align: center;
+  margin-right: 8px;
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
 
-### Deployment
+## ステップ 2: Counter の作成
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## ステップ 3: Redux の導入
 
-### `npm run build` fails to minify
+## ステップ 4: useReducer との比較
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 参考
+
+- [Redux Essentials, Part 2: Redux App Structure](https://redux.js.org/tutorials/essentials/part-2-app-structure)
+- [Redux 公式チュートリアルの Codesandbox](https://codesandbox.io/s/github/reduxjs/redux-essentials-counter-example/tree/master/)
