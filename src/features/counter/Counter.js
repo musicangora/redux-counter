@@ -1,39 +1,27 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "./Counter.module.css";
 
 export function Counter() {
-   const [count, setCount] = useState(0);
-   const [incrementAmount, setIncrementAmount] = useState("2");
-  
-   const increment = () => {
-     setCount(count+1);
-   }
+  const dispatch = useDispatch();
+  const count = useSelector((state) => state.count);
+  const [incrementAmount, setIncrementAmount] = useState("2");
 
-   const decrement = () => {
-     setCount(count-1);
-   }
-
-   const handleChange = (e) => {
-     setIncrementAmount(e.target.value);
-   }
-
-   const incrementByAmount = () => {
-     // Inputにはテキストが入るかもしれない
-     // Numberでキャストして、0と和集合を取ってテキスト入力時は0になるようにする
-     setCount(count+(Number(incrementAmount) || 0));
-   }
+  const handleChange = (e) => {
+    setIncrementAmount(e.target.value);
+  }
 
   return (
     <div>
       <div className={styles.row}>
-        <button className={styles.button} onClick={increment}>+</button>
+        <button className={styles.button} onClick={() => dispatch({type: "increment"})}>+</button>
         <span className={styles.value}>{count}</span>
-        <button className={styles.button} onClick={decrement}>-</button>
+        <button className={styles.button} onClick={() => dispatch({type: "decrement"})}>-</button>
       </div>
 
       <div className={styles.row}>
         <input className={styles.textbox} value={incrementAmount} onChange={handleChange} />
-        <button className={styles.button} onClick={incrementByAmount}>
+        <button className={styles.button} onClick={() => dispatch({type: "incrementByAmount", payload: (Number(incrementAmount) || 0)})}>
           Add Amount
         </button>
       </div>
