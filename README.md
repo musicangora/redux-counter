@@ -38,8 +38,107 @@ Codesandboxは[こちら](https://codesandbox.io/s/github/reduxjs/redux-essentia
 作成中...
 
 ## ステップ 1: プロジェクトの作成
+### ローカルにプロジェクトを作成する
+とりあえず、`create-react-app`でReactのプロジェクトを作成する。Reduxの導入は後から行う。
 
-### CSS について
+``` .zsh
+$ create-react-app redux-counter(プロジェクト名)
+```
+
+プロジェクトが作られたら、以下のアプリケーションを構成する主要ファイルを確認しながら、*の付いたものを新規に作成する。
+
+- `/src`
+  - `index.js`: アプリの出発点(変更なし)
+  - `App.js`: トップレベルのReactコンポーネント
+  - `/features`*
+    - `/counter`*
+      - `Counter.js`*: カウンター機能のUIを表示するReactコンポーネント
+      - `Counter.module.css`*: カウンター用のCSS
+
+## ステップ 2: Counter の作成
+
+### Counter.js
+`useState`を使って作成する。
+
+``` Counter.js
+import React, { useState } from "react";
+import styles from "./Counter.module.css";
+
+export function Counter() {
+   const [count, setCount] = useState(0);
+   const [incrementAmount, setIncrementAmount] = useState("2");
+  
+   const increment = () => {
+     setCount(count+1);
+   }
+
+   const decrement = () => {
+     setCount(count-1);
+   }
+
+   const handleChange = (e) => {
+     setIncrementAmount(e.target.value);
+   }
+
+   const incrementByAmount = () => {
+     // Inputにはテキストが入るかもしれない
+     // Numberでキャストして、0と和集合を取ってテキスト入力時は0になるようにする
+     setCount(count+(Number(incrementAmount) || 0));
+   }
+
+  return (
+    <div>
+      <div className={styles.row}>
+        <button className={styles.button} onClick={increment}>+</button>
+        <span className={styles.value}>{count}</span>
+        <button className={styles.button} onClick={decrement}>-</button>
+      </div>
+
+      <div className={styles.row}>
+        <input className={styles.textbox} value={incrementAmount} onChange={handleChange} />
+        <button className={styles.button} onClick={incrementByAmount}>
+          Add Amount
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+### App.js
+新しく作成したCounterコンポーネントを追加する。
+
+``` Counter.js
+import logo from './logo.svg';
+import './App.css';
++ import { Counter } from './features/counter/Counter';
+
+function App() {
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
++       <Counter />
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
+}
+
+export default App;
+```
+
+### Counter.module.css
 
 今回は、基となるオリジナルの Redux カウンターアプリの CSS を参考にして、CSS モジュールを使って実装している。変更箇所はカラーテーマくらいである。
 
@@ -97,13 +196,35 @@ Codesandboxは[こちら](https://codesandbox.io/s/github/reduxjs/redux-essentia
 
 ```
 
-## ステップ 2: Counter の作成
+### 実行
+ここまでできたら、ブラウザで確認する。上で表示したReact版カウンターアプリと同様の動きをしていれば正しく動いている。
+
+<a href="https://gyazo.com/2683cd214fedc75b0dc1c1ed1d691c67"><img src="https://i.gyazo.com/2683cd214fedc75b0dc1c1ed1d691c67.png" alt="Image from Gyazo" width="640"/></a>
+
++を押すとカウンターが+1され、-を押すとカウンターが-1される。下のテキストボックスに数値を入れて、Add Amountを押すとその分だけカウンターが変化する。テキストボックスに文字列が入るとAdd Amountを押しても値が変化しない。
 
 ## ステップ 3: Redux の導入
+次に、ここまで作成したプロジェクトにReduxを導入する。
+
+### Reduxのインストール
+
+### プロジェクトの構成
+
+### App.jsの書き換え
+
+### Counter.jsの書き換え
+
+### CSSの書き換え(任意)
+React版のままのUIでもいいが、せっかくなので見た目もオリジナルに近づける。
+
+### 実行
 
 ## ステップ 4: useReducer との比較
+次に、Reduxを導入したプロジェクトをuseReducerを使ったものに書き換える。useReducerはReactのhookの1つで、Reduxを導入しなくてもReducer関数を使うことができる。
+
+Reduxは状態をグローバルで管理するが、useReducerは状態の管理をコンポーネント単位のローカル内で完結させている。大規模なプロジェクトではReduxを、小規模なプロジェクトではuseStateやuseReducer、(ここでは紹介しないが)Context APIを使うことが多いという。
 
 ## 参考
-
 - [Redux Essentials, Part 2: Redux App Structure](https://redux.js.org/tutorials/essentials/part-2-app-structure)
 - [Redux 公式チュートリアルの Codesandbox](https://codesandbox.io/s/github/reduxjs/redux-essentials-counter-example/tree/master/)
+- [Software Design(ソフトウェアデザイン)2021年8月号](https://www.amazon.co.jp/dp/B098WVGCZR/)
