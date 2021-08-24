@@ -108,7 +108,7 @@ export function Counter() {
 ### App.js
 新しく作成したCounterコンポーネントを追加する。
 
-``` Counter.js
+``` diff Counter.js
 import logo from './logo.svg';
 import './App.css';
 + import { Counter } from './features/counter/Counter';
