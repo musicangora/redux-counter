@@ -2,7 +2,7 @@
 
 `$ npx create-react-app hoge --template redux`でプロジェクトを作成した際に出てくる Redux を使ったカウンターアプリを作成するチュートリアル。
 
-まず、React の hook を使って実装し、それに Redux を導入する。さらに useReducer を用いたものも比較として実装していく。
+まず、React の hook を使って実装し、それに Redux を導入する。さらに ReduxToolkit を導入したものと、useReducer を用いたものも比較として実装していく。
 
 ## 誰のためのチュートリアルか
 
@@ -20,12 +20,13 @@ React の勉強をしていて、Redux も勉強してみようと思ったも�
 
 ちなみに、Redux のお話は、[Redux 入門【ダイジェスト版】10 分で理解する Redux の基礎](https://qiita.com/kitagawamac/items/49a1f03445b19cf407b7)と公式の[Redux Essentials, Part 1: Redux Overview and Concepts](https://redux.js.org/tutorials/essentials/part-1-overview-concepts)をあわせて見るとわかりやすい気がする。
 
-あと、[Software Design(ソフトウェアデザイン)2021年8月号](https://www.amazon.co.jp/dp/B098WVGCZR/)は表紙にもあるように、本当にReactが怖くなくなったのでおすすめである。
+あと、[Software Design(ソフトウェアデザイン)2021 年 8 月号](https://www.amazon.co.jp/dp/B098WVGCZR/)は表紙にもあるように、本当に React が怖くなくなったのでおすすめである。
 
 ## 完成図
 
 ### オリジナルの Redux カウンターアプリ
-Codesandboxは[こちら](https://codesandbox.io/s/github/reduxjs/redux-essentials-counter-example/tree/master/)
+
+Codesandbox は[こちら](https://codesandbox.io/s/github/reduxjs/redux-essentials-counter-example/tree/master/)
 
 <a href="https://gyazo.com/a173aeb511fbf0794c47bbf029b8f43c"><img src="https://i.gyazo.com/a173aeb511fbf0794c47bbf029b8f43c.png" alt="Image from Gyazo" width="640"/></a>
 
@@ -38,36 +39,39 @@ Codesandboxは[こちら](https://codesandbox.io/s/github/reduxjs/redux-essentia
 <a href="https://gyazo.com/44a5a8a84ef6c597c5ed1e97dd9a31c1"><img src="https://i.gyazo.com/44a5a8a84ef6c597c5ed1e97dd9a31c1.gif" alt="Image from Gyazo" width="640"/></a>
 
 ## ステップ 1: プロジェクトの作成
-### ローカルにプロジェクトを作成する
-とりあえず、`create-react-app`でReactのプロジェクトを作成する。Reduxの導入は後から行う。
 
-``` .zsh
+### ローカルにプロジェクトを作成する
+
+とりあえず、`create-react-app`で React のプロジェクトを作成する。Redux の導入は後から行う。
+
+```.zsh
 $ create-react-app redux-counter(プロジェクト名)
 ```
 
-プロジェクトが作られたら、以下のアプリケーションを構成する主要ファイルを確認しながら、*の付いたものを新規に作成する。
+プロジェクトが作られたら、以下のアプリケーションを構成する主要ファイルを確認しながら、\*の付いたものを新規に作成する。
 
 - `/src`
   - `index.js`: アプリの出発点(変更なし)
-  - `App.js`: トップレベルのReactコンポーネント
-  - `/features`*
-    - `/counter`*
-      - `Counter.js`*: カウンター機能のUIを表示するReactコンポーネント
-      - `Counter.module.css`*: カウンター用のCSS
+  - `App.js`: トップレベルの React コンポーネント
+  - `/features`\*
+    - `/counter`\*
+      - `Counter.js`\*: カウンター機能の UI を表示する React コンポーネント
+      - `Counter.module.css`\*: カウンター用の CSS
 
 ## ステップ 2: Counter の作成
 
 ### Counter.js
+
 `useState`を使って作成する。
 
-``` Counter.js
+```Counter.js
 import React, { useState } from "react";
 import styles from "./Counter.module.css";
 
 export function Counter() {
    const [count, setCount] = useState(0);
    const [incrementAmount, setIncrementAmount] = useState("2");
-  
+
    const increment = () => {
      setCount(count+1);
    }
@@ -106,9 +110,10 @@ export function Counter() {
 ```
 
 ### App.js
-新しく作成したCounterコンポーネントを追加する。
 
-``` diff Counter.js
+新しく作成した Counter コンポーネントを追加する。
+
+```diff Counter.js
 import logo from './logo.svg';
 import './App.css';
 + import { Counter } from './features/counter/Counter';
@@ -197,41 +202,46 @@ export default App;
 ```
 
 ### 実行
-ここまでできたら、ブラウザで確認する。上で表示したReact版カウンターアプリと同様の動きをしていれば正しく動いている。
+
+ここまでできたら、ブラウザで確認する。上で表示した React 版カウンターアプリと同様の動きをしていれば正しく動いている。
 
 <a href="https://gyazo.com/2683cd214fedc75b0dc1c1ed1d691c67"><img src="https://i.gyazo.com/2683cd214fedc75b0dc1c1ed1d691c67.png" alt="Image from Gyazo" width="640"/></a>
 
-+を押すとカウンターが+1され、-を押すとカウンターが-1される。下のテキストボックスに数値を入れて、Add Amountを押すとその分だけカウンターが変化する。テキストボックスに文字列が入るとAdd Amountを押しても値が変化しない。
++を押すとカウンターが+1 され、-を押すとカウンターが-1 される。下のテキストボックスに数値を入れて、Add Amount を押すとその分だけカウンターが変化する。テキストボックスに文字列が入ると Add Amount を押しても値が変化しない。
 
 ## ステップ 3: Redux の導入
-次に、ここまで作成したプロジェクトにReduxを導入する。オリジナルReduxカウンターアプリは、Reduxを簡潔に記述できるようにした、Redux Toolkitを使用しているが、今回はそのままのReduxを使用する。Redux Toolkitを使用したものはオリジナル版のソースコードを参照してほしい。
 
-### Reduxのインストール
-`create-react-app`で作成したプロジェクトにはReduxは含まれていないので、インストールする必要がある。reduxはメインライブラリ、react-reduxはReactとReduxをつなぐライブラリである。
+次に、ここまで作成したプロジェクトに Redux を導入する。オリジナル Redux カウンターアプリは、Redux を簡潔に記述できるようにした、Redux Toolkit を使用しているが、ここではそのままの Redux を使用する。
 
-``` .zsh
+### Redux のインストール
+
+`create-react-app`で作成したプロジェクトには Redux は含まれていないので、インストールする必要がある。redux はメインライブラリ、react-redux は React と Redux をつなぐライブラリである。
+
+```.zsh
 $ npm install redux react-redux
 ```
 
 ### プロジェクトの構成
-以下のプロジェクト構成を参考に*が付いているファイル/ディレクトリを新規に作成する。
+
+以下のプロジェクト構成を参考に\*が付いているファイル/ディレクトリを新規に作成する。
 
 - `/src`
   - `/app`
-    - `reducer.js`*: Reducerをまとめるコンポーネント
-    - `store.js`*: Storeを作成する
+    - `reducer.js`\*: Reducer をまとめるコンポーネント
+    - `store.js`\*: Store を作成する
   - `index.js`: アプリの出発点
-  - `App.js`: トップレベルのReactコンポーネント
+  - `App.js`: トップレベルの React コンポーネント
   - `/features`
     - `/counter`
-      - `Counter.js`: カウンター機能のUIを表示するReactコンポーネント
-      - `Counter.module.css`*: カウンター用のCSS
-      - `CounterSlice.js`*: CounterのReducer
+      - `Counter.js`: カウンター機能の UI を表示する React コンポーネント
+      - `Counter.module.css`\*: カウンター用の CSS
+      - `CounterSlice.js`\*: Counter の Reducer
 
-### CounterSlice.jsを追加
-CounterコンポーネントのReducerを定義する。
+### CounterSlice.js を追加
 
-``` CounterSlice.js
+Counter コンポーネントの Reducer を定義する。
+
+```CounterSlice.js
 const initialState = {count: 0};
 
 const counterReducer = (state = initialState, action) => {
@@ -257,9 +267,10 @@ export default counterReducer;
 ```
 
 ### reducer.js
-今回はReducerは1つのため、ここに直接CounterSlice.jsの内容を書いてもいいが、後の拡張性を考えて分割しておく。
 
-``` reducer.js
+今回は Reducer は 1 つのため、ここに直接 CounterSlice.js の内容を書いてもいいが、後の拡張性を考えて分割しておく。
+
+```reducer.js
 import counterReducer from "../features/counter/CounterSlice";
 
 const rootReducer = counterReducer;
@@ -267,9 +278,10 @@ export default rootReducer;
 ```
 
 ### store.js
-`createStore()`を使ってStoreを作成する。
 
-``` store.js
+`createStore()`を使って Store を作成する。
+
+```store.js
 import { createStore } from "redux";
 import rootReducer from "./reducer";
 
@@ -277,10 +289,11 @@ const store = createStore(rootReducer);
 export default store;
 ```
 
-### index.jsの書き換え
-index.jsに`Provider`を追加する。これによってReduxのStoreを読み取ることができるようになる。
+### index.js の書き換え
 
-``` diff index.js
+index.js に`Provider`を追加する。これによって Redux の Store を読み取ることができるようになる。
+
+```diff index.js
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
@@ -299,13 +312,15 @@ ReactDOM.render(
 );
 ```
 
-### Counter.jsの書き換え
+### Counter.js の書き換え
+
 ここからが本番である。順番に書き換えていく。
 
 #### useSelector()
-まず、変更前のCounter.jsのstateの1つである`count`を`useSelector()`を使ったものに書き換える。`useSelector()`を使うことで、ReduxのStore内にある任意のstateを選択して(Selectして)持ってくる事ができる。これまで`useState()`を使って管理していたstateを、ReduxのStore内で管理することにしている。
 
-``` diff Counter.js
+まず、変更前の Counter.js の state の 1 つである`count`を`useSelector()`を使ったものに書き換える。`useSelector()`を使うことで、Redux の Store 内にある任意の state を選択して(Select して)持ってくる事ができる。これまで`useState()`を使って管理していた state を、Redux の Store 内で管理することにしている。
+
+```diff Counter.js
 import React, { useState } from "react";
 +import { useDispatch, useSelector } from "react-redux";
 import styles from "./Counter.module.css";
@@ -318,9 +333,10 @@ export function Counter() {
 ```
 
 #### useDispatch()
-次に、`useDispatch()`を追加する。`useSelector()`のおかげでReduxのStoreにアクセスすることはできたが、StoreにActionを伝える手段がない。そこで、`useDispatch()`を用いて`dispatch`を追加する。
 
-``` diff Counter.js
+次に、`useDispatch()`を追加する。`useSelector()`のおかげで Redux の Store にアクセスすることはできたが、Store に Action を伝える手段がない。そこで、`useDispatch()`を用いて`dispatch`を追加する。
+
+```diff Counter.js
 ...
 export function Counter() {
   const count = useSelector((state) => state.count);
@@ -329,9 +345,9 @@ export function Counter() {
 ...
 ```
 
-ここで、`<button>`の`onClick`処理を`dispatch`に変更する。`dispatch`は`dispatch(Action)`の形でActionを伝える。Actionは`{type: "type", payload: data}`の形で構成されている。
+ここで、`<button>`の`onClick`処理を`dispatch`に変更する。`dispatch`は`dispatch(Action)`の形で Action を伝える。Action は`{type: "type", payload: data}`の形で構成されている。
 
-``` diff Counter.js
+```diff Counter.js
 ...
 return (
     <div>
@@ -367,9 +383,9 @@ return (
   ...
 ```
 
-上で`type`で渡されているActionのタイプは、`CounterSlice.js`で定義されている。この内容はもともと、`Counter.js`で`useState()`の`setCount()`で定義されていたものである。
+上で`type`で渡されている Action のタイプは、`CounterSlice.js`で定義されている。この内容はもともと、`Counter.js`で`useState()`の`setCount()`で定義されていたものである。
 
-``` CounterSlice.js
+```CounterSlice.js
 const counterReducer = (state = initialState, action) => {
   switch (action.type) {
     case "increment":
@@ -390,11 +406,11 @@ const counterReducer = (state = initialState, action) => {
 }
 ```
 
-``` diff Counter.js
+```diff Counter.js
 ...
 export function Counter() {
 -   const [count, setCount] = useState(0);
-  
+
 -   const increment = () => {
 -     setCount(count+1);
 -   }
@@ -411,7 +427,7 @@ export function Counter() {
 
 上記の変更をすべて行った`Counter.js`を下に示す。
 
-``` Counter.js
+```Counter.js
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "./Counter.module.css";
@@ -444,9 +460,11 @@ export function Counter() {
 }
 ```
 
-### CSSの書き換え(任意)
-React版のままのUIでもいいが、せっかくなので見た目もオリジナルに近づける。
-``` diff Counter.module.css
+### CSS の書き換え(任意)
+
+React 版のままの UI でもいいが、せっかくなので見た目もオリジナルに近づける。
+
+```diff Counter.module.css
 ...
 
 .button {
@@ -477,15 +495,15 @@ React版のままのUIでもいいが、せっかくなので見た目もオリ�
 ...
 ```
 
-ロゴのSVGも変更する。
+ロゴの SVG も変更する。
 
-``` logo.svg
+```logo.svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g fill="#764ABC"><path d="M65.6 65.4c2.9-.3 5.1-2.8 5-5.8-.1-3-2.6-5.4-5.6-5.4h-.2c-3.1.1-5.5 2.7-5.4 5.8.1 1.5.7 2.8 1.6 3.7-3.4 6.7-8.6 11.6-16.4 15.7-5.3 2.8-10.8 3.8-16.3 3.1-4.5-.6-8-2.6-10.2-5.9-3.2-4.9-3.5-10.2-.8-15.5 1.9-3.8 4.9-6.6 6.8-8-.4-1.3-1-3.5-1.3-5.1-14.5 10.5-13 24.7-8.6 31.4 3.3 5 10 8.1 17.4 8.1 2 0 4-.2 6-.7 12.8-2.5 22.5-10.1 28-21.4z"/><path d="M83.2 53c-7.6-8.9-18.8-13.8-31.6-13.8H50c-.9-1.8-2.8-3-4.9-3h-.2c-3.1.1-5.5 2.7-5.4 5.8.1 3 2.6 5.4 5.6 5.4h.2c2.2-.1 4.1-1.5 4.9-3.4H52c7.6 0 14.8 2.2 21.3 6.5 5 3.3 8.6 7.6 10.6 12.8 1.7 4.2 1.6 8.3-.2 11.8-2.8 5.3-7.5 8.2-13.7 8.2-4 0-7.8-1.2-9.8-2.1-1.1 1-3.1 2.6-4.5 3.6 4.3 2 8.7 3.1 12.9 3.1 9.6 0 16.7-5.3 19.4-10.6 2.9-5.8 2.7-15.8-4.8-24.3z"/><path d="M32.4 67.1c.1 3 2.6 5.4 5.6 5.4h.2c3.1-.1 5.5-2.7 5.4-5.8-.1-3-2.6-5.4-5.6-5.4h-.2c-.2 0-.5 0-.7.1-4.1-6.8-5.8-14.2-5.2-22.2.4-6 2.4-11.2 5.9-15.5 2.9-3.7 8.5-5.5 12.3-5.6 10.6-.2 15.1 13 15.4 18.3 1.3.3 3.5 1 5 1.5-1.2-16.2-11.2-24.6-20.8-24.6-9 0-17.3 6.5-20.6 16.1-4.6 12.8-1.6 25.1 4 34.8-.5.7-.8 1.8-.7 2.9z"/></g></svg>
 ```
 
 背景色とリンクの色も変更する。
 
-``` diff App.css
+```diff App.css
 ...
 .App-header {
 - background-color: #282c34;
@@ -505,14 +523,41 @@ React版のままのUIでもいいが、せっかくなので見た目もオリ�
 ```
 
 ### 実行
-ここまでの変更を行うと、React版と同様の動きをするRedux版のカウンターアプリが完成する。
-## ステップ 4: useReducer との比較
-次に、Reduxを導入したプロジェクトをuseReducerを使ったものに書き換える。useReducerはReactのhookの1つで、Reduxを導入しなくてもReducer関数を使うことができる。
 
-Reduxは状態をグローバルで管理するが、useReducerは状態の管理をコンポーネント単位のローカル内で完結させている。大規模なプロジェクトではReduxを、小規模なプロジェクトではuseStateやuseReducer、(ここでは紹介しないが)Context APIを使うことが多いという。
+ここまでの変更を行うと、React 版と同様の動きをする Redux 版のカウンターアプリが完成する。
+
+## ステップ 4: ReduxToolkit
+
+ここでは、Redux 版のカウンターアプリをベースにして ReduxToolkit を導入したものに書き換える。前述の通り、ReduxToolkit を導入することで簡潔に Redux を使うことができる。
+
+### Redux Toolkit のインストール
+
+```.zsh
+$ npm install @reduxjs/toolkit
+```
+
+### CounterSlice.js の書き換え
+
+### store.js の書き換え
+
+### Counter.js の書き換え
+
+### まとめ
+
+### 参考
+
+- [いま Redux を導入するなら Redux Toolkit を使うべき](https://qiita.com/NeGI1009/items/d553bdb361e755d5986c)
+- [Redux Toolkit Quick Start](https://redux-toolkit.js.org/tutorials/quick-start)
+
+## ステップ 5: useReducer との比較
+
+ここでは、ステップ 2 の React 版のカウンターアプリをベースにして、useReducer を使ったものに書き換える。useReducer は React の hook の 1 つで、Redux を導入しなくても Reducer 関数を使うことができる。
+
+Redux は状態をグローバルで管理するが、useReducer は状態の管理をコンポーネント単位のローカル内で完結させている。大規模なプロジェクトでは Redux を、小規模なプロジェクトでは useState や useReducer、(ここでは紹介しないが)Context API を使うことが多いという。
 
 ## 参考
+
 - [Redux Essentials, Part 2: Redux App Structure](https://redux.js.org/tutorials/essentials/part-2-app-structure)
 - [Redux 公式チュートリアルの Codesandbox](https://codesandbox.io/s/github/reduxjs/redux-essentials-counter-example/tree/master/)
 - [Redux Fundamentals, Part 5: UI and React](https://redux.js.org/tutorials/fundamentals/part-5-ui-react)
-- [Software Design(ソフトウェアデザイン)2021年8月号](https://www.amazon.co.jp/dp/B098WVGCZR/)
+- [Software Design(ソフトウェアデザイン)2021 年 8 月号](https://www.amazon.co.jp/dp/B098WVGCZR/)
