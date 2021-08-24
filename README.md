@@ -35,7 +35,7 @@ Codesandboxは[こちら](https://codesandbox.io/s/github/reduxjs/redux-essentia
 
 ### Redux 版カウンターアプリ
 
-作成中...
+<a href="https://gyazo.com/44a5a8a84ef6c597c5ed1e97dd9a31c1"><img src="https://i.gyazo.com/44a5a8a84ef6c597c5ed1e97dd9a31c1.gif" alt="Image from Gyazo" width="640"/></a>
 
 ## ステップ 1: プロジェクトの作成
 ### ローカルにプロジェクトを作成する
@@ -227,4 +227,5 @@ Reduxは状態をグローバルで管理するが、useReducerは状態の管�
 ## 参考
 - [Redux Essentials, Part 2: Redux App Structure](https://redux.js.org/tutorials/essentials/part-2-app-structure)
 - [Redux 公式チュートリアルの Codesandbox](https://codesandbox.io/s/github/reduxjs/redux-essentials-counter-example/tree/master/)
+- [Redux Fundamentals, Part 5: UI and React](https://redux.js.org/tutorials/fundamentals/part-5-ui-react)
 - [Software Design(ソフトウェアデザイン)2021年8月号](https://www.amazon.co.jp/dp/B098WVGCZR/)
