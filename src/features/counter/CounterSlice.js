@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {count: 0};
 
+// SliceはReducer/Action/Stateをひとまとめにしたもの
+// createActionとcreateReducerをまとめて、Stateの更新をあたかも書き換えるように記述できる
 const counterSlice = createSlice({
   name: "counter",  // Sliceの名前、Action Typeのプレフィックス
   initialState: initialState,  // stateの初期値
