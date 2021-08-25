@@ -1,22 +1,23 @@
+import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = {count: 0};
 
-const counterReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case "increment":
-      return {
-        count: state.count + 1
-      };
-    case "decrement":
-      return {
-        count: state.count - 1
-      };
-    case "incrementByAmount":
-      return {
-        count: state.count += action.payload
-      };
-    default:
-      return state;
-  }
-}
+const counterSlice = createSlice({
+  name: "counter",  // Sliceの名前、Action Typeのプレフィックス
+  initialState: initialState,  // stateの初期値
+  reducers: {  // Reducerの定義
+    increment: (state) => {  // counter/incrementというAction Creatorが自動的に生成される
+      state.count += 1
+    },
+    decrement: (state) => {
+      state.count -= 1
+    },
+    incrementByAmount: (state, action) => {
+      state.count += action.payload
+    },
+  },
+});
 
-export default counterReducer;
+export const {increment, decrement, incrementByAmount} = counterSlice.actions;
+
+export default counterSlice;
