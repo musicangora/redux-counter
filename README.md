@@ -531,29 +531,271 @@ React 版のままの UI でもいいが、せっかくなので見た目もオ�
 ここでは、Redux 版のカウンターアプリをベースにして ReduxToolkit を導入したものに書き換える。前述の通り、ReduxToolkit を導入することで簡潔に Redux を使うことができる。
 
 ### Redux Toolkit のインストール
+まずは、Redux Toolkitを導入する。本来であれば一緒にreact-reduxもインストールするが、ステップ3でインストールしているため、Redux Toolkitのみインストールする。
 
 ```.zsh
 $ npm install @reduxjs/toolkit
 ```
 
+※react-reduxをインストールしていない場合
+```.zsh
+$ npm install @reduxjs/toolkit react-redux
+```
+
 ### CounterSlice.js の書き換え
+まず、`CounterSlice.js`を書き換える。SliceはReducer/Action/Stateをひとまとめにしたようなもので、`createAction`と`createReducer`をまとめて記述できるようになっている。このSliceを作るための`createSlice`を
+
+``` CounterSlice.js
+import { createSlice } from "@reduxjs/toolkit"
+```
+
+でインポートする。
+
+ここで、変更前の`CounterSlice.js`を見てみると、
+
+``` CounterSlice.js
+const initialState = {count: 0};
+
+const counterReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case "increment":
+      return {
+        count: state.count + 1
+      };
+    case "decrement":
+      return {
+        count: state.count - 1
+      };
+    case "incrementByAmount":
+      return {
+        count: state.count += action.payload
+      };
+    default:
+      return state;
+  }
+}
+
+export default counterReducer;
+```
+
+これを`createSlice`を使ったものに書き換えると、
+
+``` CounterSlice.js
+const initialState = {count: 0};
+
+const counterSlice = createSlice({
+  name: "counter",  // Sliceの名前、Action Typeのプレフィックス
+  initialState: initialState,  // stateの初期値
+  reducers: {  // Reducerの定義
+    increment: (state) => {  // counter/incrementというAction Creatorが自動的に生成される
+      state.count += 1
+    },
+    decrement: (state) => {
+      state.count -= 1
+    },
+    incrementByAmount: (state, action) => {
+      state.count += action.payload
+    },
+  },
+});
+
+export const {increment, decrement, incrementByAmount} = counterSlice.actions;
+
+export default counterSlice.reducer;
+```
+
+このように`createSlice`を使うことで、Action/Reducer/Stateを簡潔にまとめて記述することができる。
 
 ### store.js の書き換え
+次に、`store.js`を`configureStore`を使ったものに書き換える。これは`createStore`の代わりである。
+
+`createStore`を使ったもともとの`store.js`は、
+
+``` store.js
+import { createStore } from "redux";
+import rootReducer from "./reducer";
+
+export default createStore(rootReducer);
+```
+
+これを、`configureStore`を使って以下のように書き換える。
+
+``` store.js
+import { configureStore } from "@reduxjs/toolkit";
+import rootReducer from "./reducer";
+
+export default configureStore({
+  reducer: {
+    counter: rootReducer,
+  },
+});
+```
 
 ### Counter.js の書き換え
+最後に、`Counter.js`を`CounterSlice`で定義したActionを使ったものに書き換えていく。まず、`CounterSlice.js`からexportしたActionをimportする。
+
+``` diff CounterSlice.js
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styles from "./Counter.module.css";
++import { decrement, increment, incrementByAmount } from "./CounterSlice";
+```
+
+次に、`useSelector()`でStoreからstateを選択して読み込む。
+
+``` diff CounterSlice.js
+...
+export function Counter() {
+  const dispatch = useDispatch();
+-  const count = useSelector((state) => state.count);
++  const count = useSelector((state) => state.counter.count);
+  const [incrementAmount, setIncrementAmount] = useState("2");
+...
+```
+
+ここの`state.counter.count`は、`store.js`でStoreを定義した際に、Reducerに`counter`という名前をつけているため必要になってくる。
+
+``` store.js
+export default configureStore({
+  reducer: {
+    counter: rootReducer,
+  },
+});
+```
+
+ちなみに、`counter`という名前を`CounterSlice.js`内のnameプロパティでも使用しているが、こちらはAction Typeのプレフィックスとして使われている。
+
+``` diff CounterSlice.js
+...
+const counterSlice = createSlice({
+-  name: "counter",
++  name: "action-type-prefix-counter",  // Sliceの名前、Action Typeのプレフィックス
+  initialState: initialState,
+  reducers: {  // Reducerの定義
+    increment: (state) => {
+      state.count += 1
+    },
+...
+```
+
+<a href="https://gyazo.com/50669a668d1fd87c939a16eb2d663759"><img src="https://i.gyazo.com/50669a668d1fd87c939a16eb2d663759.png" alt="Image from Gyazo" width="640"/></a>
+
+最後に、`OnClick`の処理を`CounterSlice.js`でエクスポートしたActionに変更する。`incrementByAmount()`は、データを受け取るので引数として与えてあげる。
+
+``` diff Counter.js
+...
+return (
+    <div>
+      <div className={styles.row}>
+        <button
+          className={styles.button}
+-          onClick={() => dispatch({type: "increment"})}
++          onClick={() => dispatch(increment())}
+        >+
+        </button>
+
+        <span className={styles.value}>{count}</span>
+
+        <button
+          className={styles.button}
+-          onClick={() => dispatch({type: "decrement"})}
++          onClick={() => dispatch(decrement())}
+        >-
+        </button>
+      </div>
+
+      <div className={styles.row}>
+        <input className={styles.textbox} value={incrementAmount} onChange={handleChange} />
+        <button
+          className={styles.button}
+-          onClick={() => dispatch({type: "incrementByAmount", payload: (Number(incrementAmount) || 0)})}
++          onClick={() => dispatch(incrementByAmount((Number(incrementAmount) || 0)))}
+        >Add Amount
+        </button>
+      </div>
+    </div>
+  );
+  ...
+```
+
+ActionをSliceで定義してあるため、かなり簡潔に、そして直感的に記述できることが分かる。
+
+最後に、ここまでのすべての変更を行った`Counter.js`を下に示す。
+
+``` Counter.js
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styles from "./Counter.module.css";
+import { decrement, increment, incrementByAmount } from "./CounterSlice";
+
+export function Counter() {
+  const dispatch = useDispatch();
+  const count = useSelector((state) => state.counter.count);
+  const [incrementAmount, setIncrementAmount] = useState("2");
+
+  const handleChange = (e) => {
+    setIncrementAmount(e.target.value);
+  }
+
+  return (
+    <div>
+      <div className={styles.row}>
+        <button
+          className={styles.button}
+          onClick={() => dispatch(increment())}
+        >+
+        </button>
+        
+        <span className={styles.value}>{count}</span>
+        
+        <button
+          className={styles.button}
+          onClick={() => dispatch(decrement())}
+        >-
+        </button>
+      </div>
+
+      <div className={styles.row}>
+        <input
+          className={styles.textbox}
+          value={incrementAmount}
+          onChange={handleChange} />
+        <button
+          className={styles.button}
+          onClick={() => dispatch(incrementByAmount((Number(incrementAmount) || 0)))}
+        >
+          Add Amount
+        </button>
+      </div>
+    </div>
+  );
+}
+```
 
 ### まとめ
+以上の変更を加えることで、Redux版と同様の動作をするはずである。Redux Toolkitを使った方が、確かに簡潔で直感的に記述できるように感じた。
 
 ### 参考
 
 - [いま Redux を導入するなら Redux Toolkit を使うべき](https://qiita.com/NeGI1009/items/d553bdb361e755d5986c)
 - [Redux Toolkit Quick Start](https://redux-toolkit.js.org/tutorials/quick-start)
 
-## ステップ 5: useReducer との比較
+## (おまけ)ステップ 5: useReducer との比較
 
 ここでは、ステップ 2 の React 版のカウンターアプリをベースにして、useReducer を使ったものに書き換える。useReducer は React の hook の 1 つで、Redux を導入しなくても Reducer 関数を使うことができる。
 
 Redux は状態をグローバルで管理するが、useReducer は状態の管理をコンポーネント単位のローカル内で完結させている。大規模なプロジェクトでは Redux を、小規模なプロジェクトでは useState や useReducer、(ここでは紹介しないが)Context API を使うことが多いという。
+
+### store.js, reducer.js
+
+### CounterSlice.js
+
+
+### Counter.js
+
+
+### Redux版との違い
+useReducerでは、stateをコンポーネント単位のローカル内で完結させているため、Storeが存在しない。そのため、useStateとReduxを組み合わせたような感じで記述できると感じた。
 
 ## 参考
 
