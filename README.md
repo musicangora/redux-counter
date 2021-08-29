@@ -794,9 +794,9 @@ Redux は状態をグローバルで管理するが、useReducer は状態の管
 - `/src`
   - `index.js`: アプリの出発点
   - `App.js`: トップレベルの React コンポーネント
-  - `/features`\
-    - `/counter`\
-      - `Counter.js`\: カウンター機能の UI を表示する React コンポーネント
+  - `/features`
+    - `/counter`
+      - `Counter.js`: カウンター機能の UI を表示する React コンポーネント
       - `Counter.module.css`\*: カウンター用の CSS
 
 ### Counter.js
