@@ -786,16 +786,22 @@ export function Counter() {
 
 Redux は状態をグローバルで管理するが、useReducer は状態の管理をコンポーネント単位のローカル内で完結させている。大規模なプロジェクトでは Redux を、小規模なプロジェクトでは useState や useReducer、(ここでは紹介しないが)Context API を使うことが多いという。
 
-### store.js, reducer.js
+### プロジェクト構成
+ここでは、ステップ2のReact版をベースにしているため、以下のようなプロジェクト構成からスタートする。
 
-### CounterSlice.js
-
+- `/src`
+  - `index.js`: アプリの出発点
+  - `App.js`: トップレベルの React コンポーネント
+  - `/features`\
+    - `/counter`\
+      - `Counter.js`\: カウンター機能の UI を表示する React コンポーネント
+      - `Counter.module.css`\*: カウンター用の CSS
 
 ### Counter.js
-
+(執筆中)
 
 ### Redux版との違い
-useReducerでは、stateをコンポーネント単位のローカル内で完結させているため、Storeが存在しない。そのため、useStateとReduxを組み合わせたような感じで記述できると感じた。
+useReducerでは、stateをコンポーネント単位のローカル内で完結させているため、Storeが存在しない。そのため、(Reducerの記述はほぼ同様だが)dispatchの定義やstateの定義の部分が異なっている。個人的には、useStateとReduxを組み合わせたような感じで記述できると感じた。
 
 ## 参考
 
